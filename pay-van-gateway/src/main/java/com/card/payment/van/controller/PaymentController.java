@@ -9,13 +9,15 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/approval") // VAN 게이트웨이임을 명시하기 위해 경로 조정
+@RequestMapping("/api/v1/approval")
+@Tag(name = "VAN Payment", description = "VAN 게이트웨이 결제 승인 API")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -34,24 +36,43 @@ public class PaymentController {
                                             description = "일시불 정상 승인 요청",
                                             value = """
                                     {
-                                      "cardNumber": "4123456789012345",
-                                      "expiryDate": "2028-12",
-                                      "amount": 50000,
-                                      "posOrderId": "ORDER_001",
-                                      "merchantId": "MERCHANT_001"
+                                      "primaryAccountNumber": "4123456789012345",
+                                      "expirationDate": "2028-12",
+                                      "transactionAmount": 50000,
+                                      "cardAcceptorId": "MERCHANT_001",
+                                      "terminalId": "TERMINAL_001",
+                                      "installmentMonths": 0,
+                                      "posOrderId": "ORDER_001"
                                     }
                                     """
                                     ),
                                     @ExampleObject(
-                                            name = "2. 고액 결제 요청",
-                                            description = "고액 결제 승인 요청",
+                                            name = "2. 할부 승인 요청",
+                                            description = "3개월 할부 승인 요청",
                                             value = """
                                     {
-                                      "cardNumber": "4123456789012345",
-                                      "expiryDate": "2028-12",
-                                      "amount": 300000,
-                                      "posOrderId": "ORDER_002",
-                                      "merchantId": "MERCHANT_001"
+                                      "primaryAccountNumber": "4123456789012345",
+                                      "expirationDate": "2028-12",
+                                      "transactionAmount": 300000,
+                                      "cardAcceptorId": "MERCHANT_001",
+                                      "terminalId": "TERMINAL_001",
+                                      "installmentMonths": 3,
+                                      "posOrderId": "ORDER_002"
+                                    }
+                                    """
+                                    ),
+                                    @ExampleObject(
+                                            name = "3. 한도 초과 테스트",
+                                            description = "한도 초과 거절 테스트",
+                                            value = """
+                                    {
+                                      "primaryAccountNumber": "4123456789012345",
+                                      "expirationDate": "2028-12",
+                                      "transactionAmount": 9999999,
+                                      "cardAcceptorId": "MERCHANT_001",
+                                      "terminalId": "TERMINAL_001",
+                                      "installmentMonths": 0,
+                                      "posOrderId": "ORDER_003"
                                     }
                                     """
                                     )
@@ -60,7 +81,6 @@ public class PaymentController {
             ),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 또는 카드사 연결 실패")
     })
-    // POS 서비스로부터 결제 승인 요청을 받는 엔드포인트
     @PostMapping("/request")
     public ResponseEntity<PosPaymentResponse> approvePayment(@RequestBody PosPaymentRequest request) {
         return ResponseEntity.ok(paymentService.approvePayment(request));
@@ -77,9 +97,9 @@ public class PaymentController {
                             examples = @ExampleObject(
                                     value = """
                             {
-                              "approvalId": "APR20260320001",
-                              "status": "APPROVED",
-                              "message": "승인완료",
+                              "systemTraceAuditNumber": "APR20260320001",
+                              "responseCode": "00",
+                              "responseMessage": "승인완료",
                               "approvedAt": "2026-03-20T10:30:00",
                               "cardCompany": "SHINHAN",
                               "posOrderId": "ORDER_001"
@@ -90,7 +110,6 @@ public class PaymentController {
             ),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
-    // 특정 거래 ID로 결제 결과 조회
     @GetMapping("/{transactionId}")
     public ResponseEntity<PosPaymentResponse> getPaymentResult(@PathVariable String transactionId) {
         return ResponseEntity.ok(paymentService.getPaymentResult(transactionId));
