@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/van/approval")
+@RequestMapping("/api/v1/approval")
 @Tag(name = "Payment", description = "POS 결제 승인 API")
 public class PaymentController {
 
