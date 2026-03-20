@@ -1,3 +1,17 @@
 spring:
   application:
-    name: pay-van-gateway
+    name: PAY-VAN-GATEWAY  # 유레카와 게이트웨이에서 찾을 수 있도록 이름을 맞춥니다.
+  config:
+    import: "optional:configserver:http://localhost:8888" # 리더님의 Config Server 주소
+  cloud:
+    config:
+      enabled: true
+
+# VAN 전용 로컬 설정 (연결 전 임시)
+server:
+  port: 8082
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
