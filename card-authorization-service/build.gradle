@@ -26,6 +26,10 @@ ext {
 }
 
 dependencies {
+
+    // Config Client 추가 (이게 있어야 8888 포트로 가서 설정을 가져옵니다)
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
     // Eureka Client 추가
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
