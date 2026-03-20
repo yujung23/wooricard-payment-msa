@@ -1,39 +1,39 @@
 package com.card.payment.pos.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Getter
 @Entity
+@Getter
 @NoArgsConstructor
 public class PaymentHistory {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String approvalId;
-    private String cardNumber;
-    private Long amount;
-    private String status;
+    private String systemTraceAuditNumber;
+    private String primaryAccountNumber;
+    private Long transactionAmount;
+    private String responseCode;
     private String cardCompany;
-    private String merchantId;
+    private String cardAcceptorId;
     private LocalDateTime createdAt;
 
     @Builder
-    public PaymentHistory(String approvalId, String cardNumber, Long amount, String status, String cardCompany, String merchantId) {
-        this.approvalId = approvalId;
-        this.cardNumber = cardNumber;
-        this.amount = amount;
-        this.status = status;
+    public PaymentHistory(String systemTraceAuditNumber, String primaryAccountNumber,
+                          Long transactionAmount, String responseCode,
+                          String cardCompany, String cardAcceptorId) {
+        this.systemTraceAuditNumber = systemTraceAuditNumber;
+        this.primaryAccountNumber = primaryAccountNumber;
+        this.transactionAmount = transactionAmount;
+        this.responseCode = responseCode;
         this.cardCompany = cardCompany;
-        this.merchantId = merchantId;
+        this.cardAcceptorId = cardAcceptorId;
         this.createdAt = LocalDateTime.now();
     }
 }
