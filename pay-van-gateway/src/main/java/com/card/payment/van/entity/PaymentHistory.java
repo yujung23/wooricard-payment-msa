@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @Table(name = "van_payment_history")
 public class PaymentHistory {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id // DB가 부여하는 일련번호
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // DB가 부여하는 일련번호
     private Long id;
 
     @Column(nullable = false, unique = true)
