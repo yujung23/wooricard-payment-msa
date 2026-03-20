@@ -5,5 +5,5 @@ public record PaymentRequest(
         String expirationDate,          // DE14 - 유효기간
         Long transactionAmount,         // DE04 - 거래금액
         String cardAcceptorId,          // DE42 - 가맹점ID
-        int installmentMonths
+        int installmentMonths           // 할부 개월수
 ) {}
