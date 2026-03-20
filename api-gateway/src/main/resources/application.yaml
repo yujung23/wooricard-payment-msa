@@ -1,27 +1,5 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: api-gateway
-  cloud:
-    gateway:
-      routes:
-        # 1. 가맹점(POS) 서비스로 가는 길 안내
-        - id: pos-service
-          uri: lb://PAY-POS-SERVICE  # 유레카에서 POS-SERVICE라는 이름을 찾아 연결
-          predicates:
-            - Path=/api/v1/approval/** # 이 주소로 들어오면 POS로 보냄
-
-        # 2. VAN 서비스로 가는 길 안내
-        - id: van-service
-          uri: lb://PAY-VAN-GATEWAY  # 유레카에서 VAN-GATEWAY라는 이름을 찾아 연결
-          predicates:
-            - Path=/api/v1/van/** # 이 주소로 들어오면 VAN으로 보냄
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+  config:
+    import: "optional:configserver:http://localhost:8888"
