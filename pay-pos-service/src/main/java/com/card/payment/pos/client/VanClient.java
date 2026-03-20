@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "van-service")
+@FeignClient(name = "PAY-VAN-GATEWAY")
 public interface VanClient {
 
     @PostMapping("/api/v1/approval/request")
