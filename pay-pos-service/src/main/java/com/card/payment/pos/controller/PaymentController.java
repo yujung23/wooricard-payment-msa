@@ -15,12 +15,12 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/request")
-    public ResponseEntity<PaymentResponse> requestPayment(@RequestBody PaymentRequest request){
+    public ResponseEntity<PaymentResponse> requestPayment(@RequestBody PaymentRequest request) {
         return ResponseEntity.ok(paymentService.requestPayment(request));
     }
 
-    @GetMapping("/{approvalId}")
-    public ResponseEntity<PaymentResponse> getPaymentResult(@PathVariable String approvalId) {
-        return ResponseEntity.ok(paymentService.getPaymentResult(approvalId));
+    @GetMapping("/{stan}")
+    public ResponseEntity<PaymentResponse> getPaymentResult(@PathVariable String stan) {
+        return ResponseEntity.ok(paymentService.getPaymentResult(stan));
     }
 }
