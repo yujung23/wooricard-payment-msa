@@ -45,7 +45,7 @@ class PaymentServiceTest {
 		// given
 		PaymentRequest request = new PaymentRequest (
 				"4689140002870206", "2029-07",
-				50000L, "MERCHANT_001", 0
+				50000L, "MERCHANT_001", "TERM_01",0,"ORDER_001"
 		);
 		PaymentResponse mockResponse = PaymentResponse.from(
 				"APR20260320001", "00", "승인완료", "HYUNDAI"
@@ -67,7 +67,7 @@ class PaymentServiceTest {
 		// given
 		PaymentRequest request = new PaymentRequest (
 				"4689140002870206", "2029-07",
-				50000L, "MERCHANT_001", 0
+				50000L, "MERCHANT_001", "TERM_01",0,"ORDER_001"
 		);
 		PaymentResponse mockResponse = PaymentResponse.from(
 				"APR20260320001", "00", "승인완료", "HYUNDAI"
