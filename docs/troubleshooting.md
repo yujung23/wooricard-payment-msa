@@ -8,6 +8,7 @@
 |---------|-----------|-----------|
 | 개발자1 | 2026.03.20.16.00 | 최초 작성 - cardCompany 설계 오류 및 해결 과정 기록 |
 | 개발자1 | 2026.03.20.17.00 | POS PaymentRequest terminalId, posOrderId 누락 이슈 추가 |
+| 개발자1 | 2026.03.20.18.00 | CARD-001 카드사→은행 RestClient Eureka 미적용 이슈 추가 |
 
 ---
 
@@ -108,3 +109,63 @@ public record PaymentRequest(
 
 - POS ↔ VAN 스펙 합의 후 양쪽 DTO 필드가 동일한지 반드시 대조 확인할 것
 - 주석으로만 남긴 필드는 실제 코드에 반영되지 않으므로 주의
+
+---
+
+## [CARD-001] 카드사→은행 RestClient에 Eureka 로드밸런서 미적용
+
+### 발생 배경
+
+`card-authorization-service`가 `bank-service`를 호출할 때 config-server에 설정된 `bank.service.url: http://bank-service` (서비스명 방식)를 사용하도록 설정되어 있었으나, `BankClientImpl`이 `RestClient`를 직접 생성하는 방식이어서 Eureka 로드밸런서를 거치지 않았음.
+
+### 문제점
+
+```
+에러 메시지: 시스템 오류: 잔액 조회 최종 실패
+원인: http://bank-service → DNS 조회 실패 → 1회 재시도 후 BankClientException 발생
+```
+
+```java
+// 문제 코드: RestClient 직접 생성 → Eureka 미적용
+public BankClientImpl(@Value("${bank.service.url:http://localhost:8080}") String bankServiceUrl) {
+    this.balanceRestClient = RestClient.builder()
+            .baseUrl(bankServiceUrl)  // http://bank-service → DNS 조회 → 실패
+            .build();
+}
+```
+
+VAN → 카드사 연동은 `OpenFeign`을 사용하여 Eureka 자동 연동이 되었으나, 카드사 → 은행 연동은 `RestClient` 직접 생성 방식이어서 서비스명 기반 URL이 동작하지 않는 불일치가 있었음.
+
+```
+VAN → 카드사: @FeignClient → Eureka 자동 연동 ✅
+카드사 → 은행: RestClient 직접 생성 → Eureka 미적용 ❌
+```
+
+### 해결
+
+`BankClientImpl` 삭제 후 `BankClient` 인터페이스를 `@FeignClient`로 교체하여 통일.
+
+1. `build.gradle`에 `spring-cloud-starter-openfeign` 추가
+2. `CardAuthorizationServiceApplication`에 `@EnableFeignClients` 추가
+3. `BankClient.java`를 `@FeignClient(name = "bank-service")`로 변환
+4. `BankClientImpl.java` 삭제
+5. `AuthorizationService`에서 Feign 인터페이스 메서드 시그니처에 맞게 DTO 객체로 호출 수정
+
+```java
+// 변경 후: BankClient.java
+@FeignClient(name = "bank-service")
+public interface BankClient {
+
+    @PostMapping("/api/account/balance")
+    BalanceResponse checkBalance(@RequestBody BalanceRequest request);
+
+    @PostMapping("/api/account/debit")
+    DebitResponse requestDebit(@RequestBody DebitRequest request);
+}
+```
+
+### 교훈
+
+- MSA에서 서비스명 기반 URL(`http://서비스명`)은 Eureka + 로드밸런서가 적용된 클라이언트에서만 동작함
+- `RestClient`는 기본적으로 로드밸런서를 거치지 않으므로 서비스명 방식 사용 시 `@LoadBalanced` 설정이 별도로 필요
+- 프로젝트 내 서비스 간 통신 방식은 **OpenFeign으로 통일**하면 Eureka 연동이 자동으로 처리됨
