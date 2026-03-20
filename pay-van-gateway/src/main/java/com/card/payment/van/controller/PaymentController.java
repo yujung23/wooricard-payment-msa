@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/van/approval") // VAN 게이트웨이임을 명시하기 위해 경로 조정
+@RequestMapping("/api/v1/approval") // VAN 게이트웨이임을 명시하기 위해 경로 조정
 public class PaymentController {
 
     private final PaymentService paymentService;

@@ -15,6 +15,11 @@ spring:
     hibernate:
       ddl-auto: create
     show-sql: true
+  cloud:
+    config:
+      enabled: true  # 컨피그 기능 활성화
+  config:
+    import: "optional:configserver:http://localhost:8888"
 
 server:
   port: 8081
@@ -27,5 +32,5 @@ springdoc:
 
 eureka:
   client:
-    server-url:
+    service-url:
       defaultZone: http://localhost:8761/eureka/
