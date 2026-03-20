@@ -3,7 +3,9 @@ package com.card.payment.authorization.service;
 import com.card.payment.authorization.client.BankClient;
 import com.card.payment.authorization.dto.AuthorizationRequest;
 import com.card.payment.authorization.dto.AuthorizationResponse;
+import com.card.payment.authorization.dto.BalanceRequest;
 import com.card.payment.authorization.dto.BalanceResponse;
+import com.card.payment.authorization.dto.DebitRequest;
 import com.card.payment.authorization.dto.DebitResponse;
 import com.card.payment.authorization.entity.Authorization;
 import com.card.payment.authorization.entity.AuthorizationStatus;
@@ -103,8 +105,7 @@ public class AuthorizationService {
                     maskCardNumber(request.getCardNumber()), request.getAmount());
             
             BalanceResponse balanceResponse = bankClient.checkBalance(
-                    request.getCardNumber(), 
-                    request.getAmount()
+                    new BalanceRequest(request.getCardNumber(), request.getAmount())
             );
             
             // 2. 잔액 부족 시 거절
@@ -120,9 +121,7 @@ public class AuthorizationService {
                     request.getTransactionId(), request.getAmount());
             
             DebitResponse debitResponse = bankClient.requestDebit(
-                    request.getCardNumber(), 
-                    request.getAmount(), 
-                    request.getTransactionId()
+                    new DebitRequest(request.getCardNumber(), request.getAmount(), request.getTransactionId())
             );
             
             // 4. 출금 실패 시 거절
