@@ -1,6 +1,11 @@
 spring:
   application:
     name: pay-pos-service
+#  config:
+#    import: optional:configserver:
+  cloud:
+    config:
+      enabled: false
   datasource:
     url: jdbc:mysql://localhost:3306/pos_db
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -13,6 +18,12 @@ spring:
 
 server:
   port: 8081
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
 
 eureka:
   client:
