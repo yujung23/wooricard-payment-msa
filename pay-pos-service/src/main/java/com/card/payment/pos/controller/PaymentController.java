@@ -32,30 +32,17 @@ public class PaymentController {
                             schema = @Schema(implementation = PaymentResponse.class),
                             examples = {
                                     @ExampleObject(
-                                            name = "1. 일시불 승인 성공",
-                                            description = "일시불 정상 승인",
+                                            name = "승인 성공",
                                             value = """
-                            {
-                              "primaryAccountNumber": "4123456789012345",
-                              "expirationDate": "2028-12",
-                              "transactionAmount": 50000,
-                              "cardAcceptorId": "MERCHANT_001",
-                              "installmentMonths": 0
-                            }
-                            """
-                                    ),
-                                    @ExampleObject(
-                                            name = "2. 할부 승인 성공",
-                                            description = "3개월 할부 정상 승인",
-                                            value = """
-                            {
-                              "primaryAccountNumber": "4123456789012345",
-                              "expirationDate": "2028-12",
-                              "transactionAmount": 300000,
-                              "cardAcceptorId": "MERCHANT_001",
-                              "installmentMonths": 3
-                            }
-                            """
+                                    {
+                                      "systemTraceAuditNumber": "APR20260319001",
+                                      "responseCode": "00",
+                                      "responseMessage": "승인완료",
+                                      "approvedAt": "2026-03-19T10:30:00",
+                                      "cardCompany": "WOORICARD",
+                                      "posOrderId": "POS-ORDER-001"
+                                    }
+                                    """
                                     )
                             }
                     )
@@ -63,7 +50,28 @@ public class PaymentController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류 또는 VAN 서비스 연결 실패")
     })
     @PostMapping("/request")
-    public ResponseEntity<PaymentResponse> requestPayment(@RequestBody PaymentRequest request) {
+    public ResponseEntity<PaymentResponse> requestPayment(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "결제 승인 요청 정보",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                    {
+                                      "primaryAccountNumber": "4123456789012345",
+                                      "expirationDate": "2028-12",
+                                      "transactionAmount": 50000,
+                                      "cardAcceptorId": "MERCHANT_001",
+                                      "terminalId": "TERMINAL_001",
+                                      "installmentMonths": 0,
+                                      "posOrderId": "POS-ORDER-001"
+                                    }
+                                    """
+                            )
+                    )
+            )
+            @RequestBody PaymentRequest request) {
         return ResponseEntity.ok(paymentService.requestPayment(request));
     }
 
@@ -77,14 +85,15 @@ public class PaymentController {
                             schema = @Schema(implementation = PaymentResponse.class),
                             examples = @ExampleObject(
                                     value = """
-                        {
-                          "systemTraceAuditNumber": "APR20260319001",
-                          "responseCode": "00",
-                          "responseMessage": "승인완료",
-                          "approvedAt": "2026-03-20T10:30:00",
-                          "cardCompany": "SHINHAN"
-                        }
-                        """
+                            {
+                              "systemTraceAuditNumber": "APR20260319001",
+                              "responseCode": "00",
+                              "responseMessage": "승인완료",
+                              "approvedAt": "2026-03-19T10:30:00",
+                              "cardCompany": "WOORICARD",
+                              "posOrderId": "POS-ORDER-001"
+                            }
+                            """
                             )
                     )
             ),

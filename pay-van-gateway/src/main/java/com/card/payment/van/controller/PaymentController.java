@@ -30,11 +30,31 @@ public class PaymentController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = PosPaymentResponse.class),
-                            examples = {
-                                    @ExampleObject(
-                                            name = "1. 일시불 승인 요청",
-                                            description = "일시불 정상 승인 요청",
-                                            value = """
+                            examples = @ExampleObject(
+                                    value = """
+                                    {
+                                      "systemTraceAuditNumber": "APR20260319001",
+                                      "responseCode": "00",
+                                      "responseMessage": "승인완료",
+                                      "approvedAt": "2026-03-19T10:30:00",
+                                      "cardCompany": "WOORICARD",
+                                      "posOrderId": "POS-ORDER-001"
+                                    }
+                                    """
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류 또는 카드사 연결 실패")
+    })
+    @PostMapping("/request")
+    public ResponseEntity<PosPaymentResponse> approvePayment(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "결제 승인 요청 정보",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
                                     {
                                       "primaryAccountNumber": "4123456789012345",
                                       "expirationDate": "2028-12",
@@ -42,47 +62,13 @@ public class PaymentController {
                                       "cardAcceptorId": "MERCHANT_001",
                                       "terminalId": "TERMINAL_001",
                                       "installmentMonths": 0,
-                                      "posOrderId": "ORDER_001"
+                                      "posOrderId": "POS-ORDER-001"
                                     }
                                     """
-                                    ),
-                                    @ExampleObject(
-                                            name = "2. 할부 승인 요청",
-                                            description = "3개월 할부 승인 요청",
-                                            value = """
-                                    {
-                                      "primaryAccountNumber": "4123456789012345",
-                                      "expirationDate": "2028-12",
-                                      "transactionAmount": 300000,
-                                      "cardAcceptorId": "MERCHANT_001",
-                                      "terminalId": "TERMINAL_001",
-                                      "installmentMonths": 3,
-                                      "posOrderId": "ORDER_002"
-                                    }
-                                    """
-                                    ),
-                                    @ExampleObject(
-                                            name = "3. 한도 초과 테스트",
-                                            description = "한도 초과 거절 테스트",
-                                            value = """
-                                    {
-                                      "primaryAccountNumber": "4123456789012345",
-                                      "expirationDate": "2028-12",
-                                      "transactionAmount": 9999999,
-                                      "cardAcceptorId": "MERCHANT_001",
-                                      "terminalId": "TERMINAL_001",
-                                      "installmentMonths": 0,
-                                      "posOrderId": "ORDER_003"
-                                    }
-                                    """
-                                    )
-                            }
+                            )
                     )
-            ),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류 또는 카드사 연결 실패")
-    })
-    @PostMapping("/request")
-    public ResponseEntity<PosPaymentResponse> approvePayment(@RequestBody PosPaymentRequest request) {
+            )
+            @RequestBody PosPaymentRequest request) {
         return ResponseEntity.ok(paymentService.approvePayment(request));
     }
 
@@ -97,12 +83,12 @@ public class PaymentController {
                             examples = @ExampleObject(
                                     value = """
                             {
-                              "systemTraceAuditNumber": "APR20260320001",
+                              "systemTraceAuditNumber": "APR20260319001",
                               "responseCode": "00",
                               "responseMessage": "승인완료",
-                              "approvedAt": "2026-03-20T10:30:00",
-                              "cardCompany": "SHINHAN",
-                              "posOrderId": "ORDER_001"
+                              "approvedAt": "2026-03-19T10:30:00",
+                              "cardCompany": "WOORICARD",
+                              "posOrderId": "POS-ORDER-001"
                             }
                             """
                             )
