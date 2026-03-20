@@ -1,62 +1,75 @@
 package com.card.payment.van.service;
 
+import com.card.payment.van.client.CardAuthorizationClient;
+import com.card.payment.van.dto.CardAuthorizationRequest;
+import com.card.payment.van.dto.CardAuthorizationResponse;
 import com.card.payment.van.dto.PosPaymentRequest;
 import com.card.payment.van.dto.PosPaymentResponse;
-import com.card.payment.van.entity.PaymentHistory; // 추가
-import com.card.payment.van.repository.PaymentHistoryRepository; // 추가
+import com.card.payment.van.entity.PaymentHistory;
+import com.card.payment.van.repository.PaymentHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // 추가
-
-import java.time.LocalDateTime;
-import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 
-    private final PaymentHistoryRepository paymentHistoryRepository; // [수정 1] 리포지토리 주입
+    private final PaymentHistoryRepository paymentHistoryRepository;
+    private final CardAuthorizationClient cardAuthorizationClient;
 
     @Override
-    @Transactional // [수정 2] DB 저장을 위해 트랜잭션 보장
+    @Transactional
     public PosPaymentResponse approvePayment(PosPaymentRequest request) {
         log.info("[VAN Gateway] 승인 요청 수신 - POS 주문번호: {}, 결제금액: {}",
-                request.getPosOrderId(), request.getAmount());
+                request.posOrderId(), request.transactionAmount());
 
-        // 1. 승인 번호 생성
-        String generatedApprovalId = "VAN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        // 1. POS 요청 → 카드사 요청으로 변환 (STAN은 CardAuthorizationRequest.from() 내부에서 생성)
+        CardAuthorizationRequest authRequest = CardAuthorizationRequest.from(request);
 
-        // 2. DB 저장을 위한 엔티티 생성 및 저장 [수정 3]
+        // 2. 카드사 호출
+        log.info("[VAN Gateway] 카드사 승인 요청 - STAN: {}", authRequest.transactionId());
+        CardAuthorizationResponse authResponse = cardAuthorizationClient.requestAuthorization(authRequest);
+
+        // 3. 결제 이력 저장 (카드사 응답 기반)
         PaymentHistory history = PaymentHistory.builder()
-                .approvalId(generatedApprovalId)
-                .posOrderId(request.getPosOrderId())
-                .merchantId(request.getMerchantId())
-                .amount(request.getAmount())
-                .status("SUCCESS")
-                .cardCompany("WOORICARD")
+                .approvalId(authResponse.transactionId())
+                .posOrderId(request.posOrderId())
+                .merchantId(request.cardAcceptorId())
+                .amount(request.transactionAmount())
+                .status(authResponse.responseCode())
+                .cardCompany(resolveCardCompany(request.primaryAccountNumber()))
                 .build();
 
-        paymentHistoryRepository.save(history); // 실제 DB에 저장됨!
-        log.info("[VAN Gateway] 결제 이력 저장 완료 - 승인번호: {}", generatedApprovalId);
+        paymentHistoryRepository.save(history);
+        log.info("[VAN Gateway] 결제 이력 저장 완료 - STAN: {}, responseCode: {}",
+                authResponse.transactionId(), authResponse.responseCode());
 
-        // 3. 응답 반환
-        return PosPaymentResponse.builder()
-                .approvalId(generatedApprovalId)
-                .status("SUCCESS")
-                .message("정상 승인되었습니다.")
-                .approvedAt(LocalDateTime.now())
-                .cardCompany("WOORICARD")
-                .posOrderId(request.getPosOrderId())
-                .build();
+        // 4. 카드사 응답 → POS 응답으로 변환 (cardCompany는 VAN이 BIN으로 판단)
+        return PosPaymentResponse.from(authResponse, request.posOrderId(), resolveCardCompany(request.primaryAccountNumber()));
     }
 
     @Override
     public PosPaymentResponse getPaymentResult(String approvalId) {
         log.info("[VAN Gateway] 결제 결과 조회 - 승인번호: {}", approvalId);
-
         return null;
+    }
 
+    /**
+     * BIN 번호 기반 카드사 식별
+     * 카드번호 앞자리로 카드사를 유추합니다.
+     */
+    private String resolveCardCompany(String primaryAccountNumber) {
+        if (primaryAccountNumber == null || primaryAccountNumber.isEmpty()) {
+            return "UNKNOWN";
+        }
+        return switch (primaryAccountNumber.charAt(0)) {
+            case '4' -> "VISA";
+            case '5' -> "MASTERCARD";
+            case '9' -> "WOORICARD";
+            default -> "UNKNOWN";
+        };
     }
 }

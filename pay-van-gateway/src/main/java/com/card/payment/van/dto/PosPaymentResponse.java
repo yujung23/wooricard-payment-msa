@@ -1,17 +1,24 @@
 package com.card.payment.van.dto;
 
-import lombok.Builder;
-import lombok.Getter;
 import java.time.LocalDateTime;
 
-@Getter
-@Builder
 // VAN이 POS에게 카드 승인 결과를 보내주는 클래스
-public class PosPaymentResponse {
-    private String approvalId;    // pay-pos-service approvalId()와 매칭
-    private String status;        // pay-pos-service status()와 매칭
-    private String message;       // pay-pos-service message()와 매칭
-    private LocalDateTime approvedAt; // pay-pos-service approvedAt()과 매칭
-    private String cardCompany;   // pay-pos-service cardCompany()와 매칭
-    private String posOrderId;    // 관리용 ID
+public record PosPaymentResponse(
+        String systemTraceAuditNumber,  // DE11 - STAN (거래 고유번호)
+        String responseCode,            // DE39 - Response Code
+        String responseMessage,         // 응답 메시지
+        LocalDateTime approvedAt,       // 승인 일시
+        String cardCompany,             // 카드사명
+        String posOrderId               // POS 주문 ID (관리용)
+) {
+    public static PosPaymentResponse from(CardAuthorizationResponse response, String posOrderId, String cardCompany) {
+        return new PosPaymentResponse(
+                response.transactionId(),       // systemTraceAuditNumber (STAN)
+                response.responseCode(),        // responseCode
+                response.message(),             // responseMessage
+                response.authorizationDate(),   // approvedAt
+                cardCompany,                    // cardCompany (VAN이 BIN으로 판단)
+                posOrderId                      // posOrderId
+        );
+    }
 }
