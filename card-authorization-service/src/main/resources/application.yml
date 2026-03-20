@@ -29,7 +29,7 @@ spring:
       password: card123
 
 server:
-  port: 9090
+  port: 8083
   servlet:
     encoding:
       charset: UTF-8
