@@ -11,4 +11,5 @@ public class PosPaymentRequest {
     private String expiryDate; // 카드 유효기간
     private Long amount; // 결제 금액
     private String posOrderId; // POS에서 관리하는 주문 ID
+    private String merchantId;
 }
