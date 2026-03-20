@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "CARD-AUTHORIZATION-SERVICE")
+@FeignClient(name = "card-authorization-service")
 public interface CardAuthorizationClient {
 
     @PostMapping("/api/authorization/request")
