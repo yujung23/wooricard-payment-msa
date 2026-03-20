@@ -1,4 +1,4 @@
-package pay.config;
+package com.card.payment.config;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

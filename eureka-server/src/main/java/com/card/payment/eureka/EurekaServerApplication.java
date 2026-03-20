@@ -1,4 +1,4 @@
-package service.eureka;
+package com.card.payment.eureka;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
