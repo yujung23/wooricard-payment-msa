@@ -1,25 +1,5 @@
 spring:
   application:
     name: pay-pos-service
-  datasource:
-    url: jdbc:mysql://localhost:3306/pos_db
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 1234
-  jpa:
-    hibernate:
-      ddl-auto: create
-    show-sql: true
-  cloud:
-    config:
-      enabled: true  # 컨피그 기능 활성화
   config:
     import: "optional:configserver:http://localhost:8888"
-
-server:
-  port: 8081
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
