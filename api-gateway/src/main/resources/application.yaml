@@ -1,5 +1,5 @@
 server:
-  port: 8000
+  port: 8080
 
 spring:
   application:
@@ -15,7 +15,7 @@ spring:
 
         # 2. VAN 서비스로 가는 길 안내
         - id: van-service
-          uri: lb://PAY-VAN-GATEWAY  # 유레카에서 VAN-SERVICE라는 이름을 찾아 연결
+          uri: lb://PAY-VAN-GATEWAY  # 유레카에서 VAN-GATEWAY라는 이름을 찾아 연결
           predicates:
             - Path=/api/v1/van/** # 이 주소로 들어오면 VAN으로 보냄
 
