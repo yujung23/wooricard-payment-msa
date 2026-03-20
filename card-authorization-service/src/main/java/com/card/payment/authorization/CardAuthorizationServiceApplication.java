@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 /**
  * 카드 승인 서비스 애플리케이션
  */
+@EnableDiscoveryClient
 @SpringBootApplication
 @EnableJpaAuditing
 public class CardAuthorizationServiceApplication {

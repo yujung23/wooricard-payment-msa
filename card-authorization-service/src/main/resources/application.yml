@@ -1,6 +1,8 @@
 spring:
   application:
-    name: card-authorization-service
+    name: CARD-AUTHORIZATION-SERVICE
+  config:
+    import: "optional:configserver:http://localhost:8888"
   
   datasource:
     url: jdbc:mysql://localhost:3306/card_authorization_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
@@ -29,7 +31,7 @@ spring:
       password: card123
 
 server:
-  port: 9090
+  port: 8083
   servlet:
     encoding:
       charset: UTF-8
@@ -55,3 +57,8 @@ springdoc:
     operations-sorter: alpha
     display-request-duration: true
     doc-expansion: none
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
