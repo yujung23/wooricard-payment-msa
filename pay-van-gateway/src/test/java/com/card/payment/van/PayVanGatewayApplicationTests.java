@@ -30,7 +30,7 @@ class PayVanGatewayApplicationTests {
 	private CardAuthorizationClient cardAuthorizationClient;
 
 	@Test
-	@DisplayName("테스트 1: VISA 카드('4' 시작) 정상 승인 및 DB 기록 검증")
+	@DisplayName("테스트 1: VISA 카드 결제 승인 성공 시 응답 데이터 매핑 및 DB 저장이 정상적으로 수행되는지 검증")
 	void approvePayment_Success_Visa() {
 		// given: 가맹점(POS)에서 들어온 결제 요청 데이터
 		PosPaymentRequest posRequest = new PosPaymentRequest(
@@ -61,7 +61,7 @@ class PayVanGatewayApplicationTests {
 	}
 
 	@Test
-	@DisplayName("테스트 2: 카드사 거절(잔액 부족 - 51) 응답 전파 검증")
+	@DisplayName("테스트 2: 잔액 부족(51)으로 승인 실패 시 카드사 응답 코드와 메시지가 POS로 정상 전달되는지 검증")
 	void approvePayment_Fail_InsufficientFunds() {
 		// given: 우리카드('9' 시작) 결제 요청
 		PosPaymentRequest posRequest = new PosPaymentRequest(
@@ -86,7 +86,7 @@ class PayVanGatewayApplicationTests {
 	}
 
 	@Test
-	@DisplayName("테스트 3: 미정의 카드번호('1' 시작) UNKNOWN 판별 테스트")
+	@DisplayName("테스트 3: 미정의 카드번호 '1' 입력 시 카드사가 UNKNOWN으로 식별되는지 검증")
 	void approvePayment_Unknown_Company() {
 		// given: 정의되지 않은 번호로 시작하는 카드 요청
 		PosPaymentRequest posRequest = new PosPaymentRequest(
