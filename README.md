@@ -277,17 +277,6 @@ routes:
       - Path=/api/v1/approval/**
 ```
 
-### Config Repository 구조 설계
-```
-wooricard-config-repo/
-├── application.yml                 # 공통 설정
-├── api-gateway.yml                 # 라우팅 규칙
-├── pay-pos-service.yml
-├── pay-van-gateway.yml
-├── card-authorization-service.yml
-└── bank-service.yml
-```
-
 ---
 
 ## 개발자 4 — 하은영 | 기본 제공 서버 분석 & Swagger 명세
