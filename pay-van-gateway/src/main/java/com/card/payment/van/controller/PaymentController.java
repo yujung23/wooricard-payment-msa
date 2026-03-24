@@ -4,6 +4,7 @@ import com.card.payment.van.dto.PosPaymentRequest;
 import com.card.payment.van.dto.PosPaymentResponse;
 import com.card.payment.van.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,7 +23,10 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @Operation(summary = "결제 승인 요청", description = "POS 서비스로부터 카드 결제 승인 요청을 수신하여 카드사로 전달합니다.")
+    @Operation(
+            summary = "결제 승인 요청",
+            description = "POS 서비스로부터 카드 결제 승인 요청을 수신하여 카드사로 전달합니다. 승인번호(STAN, DE11)는 VAN에서 생성되며 응답의 systemTraceAuditNumber로 반환됩니다. (현재 구현은 UUID 형식)"
+    )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -33,7 +37,7 @@ public class PaymentController {
                             examples = @ExampleObject(
                                     value = """
                                     {
-                                      "systemTraceAuditNumber": "APR20260319001",
+                                      "systemTraceAuditNumber": "550e8400-e29b-41d4-a716-446655440000",
                                       "responseCode": "00",
                                       "responseMessage": "승인완료",
                                       "approvedAt": "2026-03-19T10:30:00",
@@ -72,7 +76,7 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.approvePayment(request));
     }
 
-    @Operation(summary = "결제 결과 조회", description = "거래 ID로 결제 승인 결과를 조회합니다.")
+    @Operation(summary = "결제 결과 조회", description = "거래 고유번호(STAN)로 승인 내역을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -83,7 +87,7 @@ public class PaymentController {
                             examples = @ExampleObject(
                                     value = """
                             {
-                              "systemTraceAuditNumber": "APR20260319001",
+                              "systemTraceAuditNumber": "550e8400-e29b-41d4-a716-446655440000",
                               "responseCode": "00",
                               "responseMessage": "승인완료",
                               "approvedAt": "2026-03-19T10:30:00",
@@ -96,8 +100,8 @@ public class PaymentController {
             ),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
-    @GetMapping("/{transactionId}")
-    public ResponseEntity<PosPaymentResponse> getPaymentResult(@PathVariable String transactionId) {
-        return ResponseEntity.ok(paymentService.getPaymentResult(transactionId));
+    @GetMapping("/{stan}")
+    public ResponseEntity<PosPaymentResponse> getPaymentResult(String stan) {
+        return ResponseEntity.ok(paymentService.getPaymentResult(stan));
     }
 }
