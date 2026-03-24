@@ -184,12 +184,6 @@ wooricard-config-repo/
 
 ### API Gateway (8080):
 단일 진입점, `lb://서비스명` 방식으로 Eureka 자동 로드밸런싱
-```groovy
-// api-gateway/build.gradle 핵심 의존성
-implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
-implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'  // lb:// 사용에 필수
-```
 ```yaml
 # api-gateway.yml (GitHub Config Repo)
 server:
@@ -218,16 +212,6 @@ POST /api/v1/approval/request
 ```
 
 > IP를 직접 쓰지 않기 때문에, 인스턴스가 늘어나도 자동 로드밸런싱 적용
-
----
-```yaml
-# API Gateway 라우팅 예시
-routes:
-  - id: pos-service
-    uri: lb://pay-pos-service
-    predicates:
-      - Path=/api/v1/approval/**
-```
 
 ---
 
