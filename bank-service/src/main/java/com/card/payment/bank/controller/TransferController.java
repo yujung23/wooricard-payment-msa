@@ -58,11 +58,11 @@ public class TransferController {
                     value = """
                         {
                           "success": true,
-                          "transferId": "TRF20240214123456789",
-                          "fromAccount": "9999999999",
-                          "toAccount": "1234567890",
-                          "amount": 950000,
-                          "transferDate": "2024-02-14T12:34:56",
+                          "transferId": "TRF20260324001",
+                          "fromAccount": "1000000001",
+                          "toAccount": "2000000001",
+                          "amount": 50000,
+                          "transferDate": "2026-03-24T12:34:56",
                           "responseCode": "00",
                           "responseMessage": "이체 성공",
                           "failureReason": null
@@ -116,10 +116,10 @@ public class TransferController {
                     examples = @ExampleObject(
                         value = """
                             {
-                              "settlementId": "SETTLE20240214001",
-                              "fromAccount": "9999999999",
-                              "toAccount": "1234567890",
-                              "amount": 950000
+                              "settlementId": "SETTLE20260324001",
+                              "fromAccount": "1000000001",
+                              "toAccount": "2000000001",
+                              "amount": 50000
                             }
                             """
                     )

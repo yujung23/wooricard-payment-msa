@@ -56,7 +56,7 @@ public class PaymentController {
                             examples = @ExampleObject(
                                     value = """
                                     {
-                                      "primaryAccountNumber": "4123456789012345",
+                                      "primaryAccountNumber": "4111111111111111",
                                       "expirationDate": "2028-12",
                                       "transactionAmount": 50000,
                                       "cardAcceptorId": "MERCHANT_001",

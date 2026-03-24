@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/van/approval")
+@RequestMapping("/api/v1/approval")
 @Tag(name = "Payment", description = "POS 결제 승인 API")
 public class PaymentController {
 
@@ -59,7 +59,7 @@ public class PaymentController {
                             examples = @ExampleObject(
                                     value = """
                                     {
-                                      "primaryAccountNumber": "4123456789012345",
+                                      "primaryAccountNumber": "4111111111111111",
                                       "expirationDate": "2028-12",
                                       "transactionAmount": 50000,
                                       "cardAcceptorId": "MERCHANT_001",

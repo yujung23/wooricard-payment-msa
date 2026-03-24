@@ -32,14 +32,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 public class AccountController {
-    
+
     private final AccountService accountService;
-    
+
     /**
      * 잔액 조회 엔드포인트
      * 카드 번호로 연결된 계좌의 잔액을 조회하고 출금 가능 여부를 확인
      * 요구사항: 4.2
-     * 
+     *
      * @param request 잔액 조회 요청 (카드 번호, 요청 금액)
      * @return 잔액 조회 응답 (계좌 정보, 잔액, 출금 가능 여부)
      */
@@ -113,7 +113,7 @@ public class AccountController {
                     examples = @ExampleObject(
                         value = """
                             {
-                              "cardNumber": "1234567890123456",
+                              "cardNumber": "4111111111111111",
                               "amount": 50000
                             }
                             """
@@ -121,9 +121,9 @@ public class AccountController {
                 )
             )
             @RequestBody BalanceRequest request) {
-        log.info("잔액 조회 요청 수신: cardNumber={}, amount={}", 
+        log.info("잔액 조회 요청 수신: cardNumber={}, amount={}",
                 request.getCardNumber(), request.getAmount());
-        
+
         try {
             // 입력 검증
             if (request.getCardNumber() == null || request.getCardNumber().trim().isEmpty()) {
@@ -135,7 +135,7 @@ public class AccountController {
                                 .build()
                 );
             }
-            
+
             if (request.getAmount() == null || request.getAmount().signum() <= 0) {
                 log.warn("잔액 조회 실패: 유효하지 않은 금액");
                 return ResponseEntity.badRequest().body(
@@ -145,16 +145,16 @@ public class AccountController {
                                 .build()
                 );
             }
-            
+
             // 카드 번호로 계좌 조회
             var account = accountService.findAccountByCardNumber(request.getCardNumber());
-            
+
             // 잔액 조회 (비관적 락 적용)
             var balanceResult = accountService.checkBalance(
-                    account.getAccountNumber(), 
+                    account.getAccountNumber(),
                     request.getAmount()
             );
-            
+
             // 응답 생성
             BalanceResponse response = BalanceResponse.builder()
                     .accountNumber(balanceResult.getAccountNumber())
@@ -166,12 +166,12 @@ public class AccountController {
                     .responseCode(balanceResult.isCanWithdraw() ? "00" : "51")
                     .responseMessage(balanceResult.isCanWithdraw() ? "승인" : "잔액 부족")
                     .build();
-            
-            log.info("잔액 조회 성공: accountNumber={}, canWithdraw={}", 
+
+            log.info("잔액 조회 성공: accountNumber={}, canWithdraw={}",
                     response.getAccountNumber(), response.isCanWithdraw());
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (IllegalArgumentException e) {
             log.error("잔액 조회 실패 - 입력 오류: {}", e.getMessage());
             return ResponseEntity.badRequest().body(
@@ -180,7 +180,7 @@ public class AccountController {
                             .responseMessage(e.getMessage())
                             .build()
             );
-            
+
         } catch (IllegalStateException e) {
             log.error("잔액 조회 실패 - 상태 오류: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(
@@ -189,7 +189,7 @@ public class AccountController {
                             .responseMessage(e.getMessage())
                             .build()
             );
-            
+
         } catch (Exception e) {
             log.error("잔액 조회 실패 - 시스템 오류: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
@@ -200,12 +200,12 @@ public class AccountController {
             );
         }
     }
-    
+
     /**
      * 출금 처리 엔드포인트
      * 카드 번호로 연결된 계좌에서 금액을 출금
      * 요구사항: 4.6
-     * 
+     *
      * @param request 출금 요청 (카드 번호, 출금 금액, 참조 ID)
      * @return 출금 응답 (거래 정보, 출금 후 잔액)
      */
@@ -281,7 +281,7 @@ public class AccountController {
                     examples = @ExampleObject(
                         value = """
                             {
-                              "cardNumber": "1234567890123456",
+                              "cardNumber": "4111111111111111",
                               "amount": 50000,
                               "referenceId": "AUTH20240214123456"
                             }
@@ -290,9 +290,9 @@ public class AccountController {
                 )
             )
             @RequestBody DebitRequest request) {
-        log.info("출금 요청 수신: cardNumber={}, amount={}, referenceId={}", 
+        log.info("출금 요청 수신: cardNumber={}, amount={}, referenceId={}",
                 request.getCardNumber(), request.getAmount(), request.getReferenceId());
-        
+
         try {
             // 입력 검증
             if (request.getCardNumber() == null || request.getCardNumber().trim().isEmpty()) {
@@ -305,7 +305,7 @@ public class AccountController {
                                 .build()
                 );
             }
-            
+
             if (request.getAmount() == null || request.getAmount().signum() <= 0) {
                 log.warn("출금 실패: 유효하지 않은 금액");
                 return ResponseEntity.badRequest().body(
@@ -316,14 +316,14 @@ public class AccountController {
                                 .build()
                 );
             }
-            
+
             // 출금 처리
             var debitResult = accountService.processDebit(
                     request.getCardNumber(),
                     request.getAmount(),
                     request.getReferenceId()
             );
-            
+
             // 응답 생성
             DebitResponse response = DebitResponse.builder()
                     .success(debitResult.isSuccess())
@@ -335,12 +335,12 @@ public class AccountController {
                     .responseCode("00")
                     .responseMessage("출금 성공")
                     .build();
-            
-            log.info("출금 성공: transactionId={}, accountNumber={}, amount={}", 
+
+            log.info("출금 성공: transactionId={}, accountNumber={}, amount={}",
                     response.getTransactionId(), response.getAccountNumber(), response.getAmount());
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (IllegalArgumentException e) {
             log.error("출금 실패 - 입력 오류: {}", e.getMessage());
             return ResponseEntity.badRequest().body(
@@ -350,10 +350,10 @@ public class AccountController {
                             .responseMessage(e.getMessage())
                             .build()
             );
-            
+
         } catch (IllegalStateException e) {
             log.error("출금 실패 - 상태 오류: {}", e.getMessage());
-            
+
             // 잔액 부족인 경우
             if (e.getMessage().contains("부족")) {
                 return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(
@@ -364,7 +364,7 @@ public class AccountController {
                                 .build()
                 );
             }
-            
+
             // 기타 상태 오류
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(
                     DebitResponse.builder()
@@ -373,7 +373,7 @@ public class AccountController {
                             .responseMessage(e.getMessage())
                             .build()
             );
-            
+
         } catch (Exception e) {
             log.error("출금 실패 - 시스템 오류: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
