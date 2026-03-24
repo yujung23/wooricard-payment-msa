@@ -1,11 +1,12 @@
 # wooricard-payment-msa
 
 우리카드 결제 MSA 프로젝트 — POS → VAN → 카드사 → 은행 결제 승인 흐름을 마이크로서비스로 구현합니다.
-<img width="2238" height="710" alt="image" src="https://github.com/user-attachments/assets/e5b452da-1094-4375-b0a3-f3a3dc3751fe" />
 
 ---
 
 ## 전체 흐름
+<img width="2238" height="710" alt="image" src="https://github.com/user-attachments/assets/e5b452da-1094-4375-b0a3-f3a3dc3751fe" />
+
 
 ```
 사용자 ↔ API Gateway(8080) ↔ POS(8081) ↔ VAN(8082) ↔ 카드사(8083) ↔ 은행(8084)
